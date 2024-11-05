@@ -27,34 +27,19 @@ export function BoardList({
   onAddBoard,
   onEditBoard,
   onDeleteBoard,
-  onConfigureApp,
 }: BoardListProps) {
   return (
     <div className="h-full flex flex-col">
       <div className="p-4 border-b">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Boards</h2>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2"
-              onClick={onConfigureApp}
-            >
-              <Github className="h-4 w-4" />
-              Configure
-            </Button>
-            <Button
-              variant="default"
-              size="sm"
-              className="gap-2"
-              onClick={onAddBoard}
-            >
-              <Plus className="h-4 w-4" />
-              New Board
-            </Button>
-          </div>
-        </div>
+        <Button
+          variant="default"
+          size="sm"
+          className="w-full gap-2"
+          onClick={onAddBoard}
+        >
+          <Plus className="h-4 w-4" />
+          New Board
+        </Button>
       </div>
       <ScrollArea className="flex-1">
         <div className="p-4 space-y-2">
@@ -62,21 +47,25 @@ export function BoardList({
             <div
               key={board.id}
               className={cn(
-                'flex items-center justify-between p-2 rounded-lg transition-colors',
+                'flex items-start justify-between p-2 rounded-lg transition-colors',
                 selectedBoardId === board.id
-                  ? 'bg-primary text-primary-foreground'
+                  ? 'bg-secondary/90 hover:bg-secondary'
                   : 'hover:bg-muted/60'
               )}
             >
               <button
-                className="flex-1 text-left px-2"
+                className="flex-1 text-left px-2 min-w-0"
                 onClick={() => onSelectBoard(board.id)}
               >
-                <div className="font-medium">{board.name}</div>
+                <div className="font-medium break-words">
+                  {board.name}
+                </div>
                 {board.gitConfig && (
-                  <div className="text-sm opacity-70 flex items-center gap-1 mt-1">
-                    <Github className="h-3 w-3" />
-                    {board.gitConfig.owner}/{board.gitConfig.repo}
+                  <div className="text-sm opacity-70 flex items-center gap-1 mt-1 break-all">
+                    <Github className="h-3 w-3 shrink-0" />
+                    <span className="truncate">
+                      {board.gitConfig.owner}/{board.gitConfig.repo}
+                    </span>
                   </div>
                 )}
               </button>
@@ -86,9 +75,9 @@ export function BoardList({
                     variant="ghost"
                     size="sm"
                     className={cn(
-                      'h-8 w-8',
+                      'h-8 w-8 shrink-0',
                       selectedBoardId === board.id
-                        ? 'hover:bg-primary-foreground/10'
+                        ? 'hover:bg-secondary-foreground/10'
                         : 'hover:bg-muted'
                     )}
                   >
@@ -101,7 +90,7 @@ export function BoardList({
                     Edit
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="text-red-600 focus:text-red-600"
+                    className="text-destructive focus:text-destructive"
                     onClick={() => onDeleteBoard(board.id)}
                   >
                     <Trash2 className="h-4 w-4 mr-2" />

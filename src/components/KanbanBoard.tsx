@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -21,7 +21,7 @@ import { KanbanColumn } from './KanbanColumn';
 import { TaskCard } from './TaskCard';
 import { AddColumnDialog } from './AddColumnDialog';
 import { Button } from './ui/button';
-import { Plus, Save } from 'lucide-react';
+import { Plus, Save, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveToGitHub, loadFromGitHub } from '@/lib/github';
 import { getAuthToken } from '@/lib/storage';
@@ -34,35 +34,13 @@ const defaultColumns: Column[] = [
   { id: 'column-3', title: 'Done', tasks: [], order: 2 },
 ];
 
-const defaultTasks: Task[] = [
-  {
-    id: '1',
-    title: 'Add drag and drop',
-    description: 'Implement DnD functionality using dnd-kit',
-    status: 'column-1',
-    priority: 'high',
-    dueDate: '2024-03-20',
-  },
-  {
-    id: '2',
-    title: 'Style components',
-    description: 'Apply shadcn/ui components and custom styling',
-    status: 'column-2',
-    priority: 'medium',
-    dueDate: '2024-03-21',
-  },
-  {
-    id: '3',
-    title: 'Write documentation',
-    description: 'Document the implementation and usage',
-    status: 'column-3',
-    priority: 'low',
-    dueDate: '2024-03-22',
-  },
-];
-
 let nextTaskId = 4;
 let nextColumnId = 4;
+
+interface BoardData {
+  columns: Column[];
+  tasks: Task[];
+}
 
 interface KanbanBoardProps {
   board: Board;
@@ -72,11 +50,12 @@ interface KanbanBoardProps {
 
 export function KanbanBoard({ board }: KanbanBoardProps) {
   const [columns, setColumns] = useState<Column[]>(defaultColumns);
-  const [tasks, setTasks] = useState<Task[]>(defaultTasks);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [activeColumn, setActiveColumn] = useState<Column | null>(null);
   const [showAddColumn, setShowAddColumn] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   const sensors = useSensors(
@@ -89,6 +68,68 @@ export function KanbanBoard({ board }: KanbanBoardProps) {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  const loadBoardData = useCallback(async () => {
+    const token = getAuthToken();
+    if (!token) {
+      toast({
+        title: 'Authentication Required',
+        description: 'Please configure your GitHub token in the app settings.',
+        variant: 'destructive',
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const content = await loadFromGitHub({
+        token,
+        ...board.gitConfig,
+      });
+
+      if (content) {
+        const boardData = JSON.parse(content) as BoardData;
+        setColumns(boardData.columns || defaultColumns);
+        setTasks(boardData.tasks || []);
+
+        // Update the next IDs based on existing data
+        const maxTaskId = Math.max(...(boardData.tasks?.map(t => parseInt(t.id)) || [0]));
+        const maxColumnId = Math.max(...(boardData.columns?.map(c => parseInt(c.id.replace('column-', ''))) || [0]));
+        nextTaskId = maxTaskId + 1;
+        nextColumnId = maxColumnId + 1;
+      } else {
+        // Reset to defaults for new boards
+        setColumns(defaultColumns);
+        setTasks([]);
+        nextTaskId = 4;
+        nextColumnId = 4;
+      }
+    } catch (error: any) {
+      if (error?.response?.status !== 404) {
+        toast({
+          title: 'Failed to Load Board',
+          description: error.message || 'Could not load board data from GitHub',
+          variant: 'destructive',
+        });
+      }
+      // Use defaults for new boards or if loading fails
+      setColumns(defaultColumns);
+      setTasks([]);
+      nextTaskId = 4;
+      nextColumnId = 4;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [board.gitConfig, toast]);
+
+  // Reset state and load new data when board changes
+  useEffect(() => {
+    setActiveTask(null);
+    setActiveColumn(null);
+    setShowAddColumn(false);
+    loadBoardData();
+  }, [board.id, loadBoardData]);
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
@@ -300,6 +341,17 @@ export function KanbanBoard({ board }: KanbanBoardProps) {
     setColumns(remainingColumns);
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading board...</span>
+        </div>
+      </div>
+    );
+  }
+
   const sortedColumns = [...columns].sort((a, b) => a.order - b.order);
   const columnIds = sortedColumns.map(col => col.id);
   const tasksMap = tasks.reduce((acc, task) => {
@@ -336,7 +388,11 @@ export function KanbanBoard({ board }: KanbanBoardProps) {
               onClick={handleSave}
               disabled={isSaving}
             >
-              <Save className="h-4 w-4" />
+              {isSaving ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
               Save Changes
             </Button>
           </div>
