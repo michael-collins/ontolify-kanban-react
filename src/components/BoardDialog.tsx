@@ -10,9 +10,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { getAuthToken } from '@/lib/storage';
 import { listUserRepos, fileExists } from '@/lib/github';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import type { Board } from '@/types/app';
 
 interface BoardDialogProps {
@@ -22,11 +31,18 @@ interface BoardDialogProps {
   board: Board | null;
 }
 
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
 export function BoardDialog({ open, onOpenChange, onSubmit, board }: BoardDialogProps) {
   const [name, setName] = useState(board?.name || '');
   const [repos, setRepos] = useState<Array<{ owner: string; name: string }>>([]);
   const [selectedRepo, setSelectedRepo] = useState('');
-  const [path, setPath] = useState('kanban-data.json');
+  const [path, setPath] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showOverwriteAlert, setShowOverwriteAlert] = useState(false);
   const [pendingData, setPendingData] = useState<Partial<Board> | null>(null);
@@ -41,10 +57,17 @@ export function BoardDialog({ open, onOpenChange, onSubmit, board }: BoardDialog
       } else {
         setName('');
         setSelectedRepo('');
-        setPath('kanban-data.json');
+        setPath('');
       }
     }
   }, [open, board]);
+
+  // Update path when name changes (only for new boards)
+  useEffect(() => {
+    if (!board && name) {
+      setPath(`${slugify(name)}.json`);
+    }
+  }, [name, board]);
 
   const loadRepos = async () => {
     const token = getAuthToken();
@@ -76,13 +99,13 @@ export function BoardDialog({ open, onOpenChange, onSubmit, board }: BoardDialog
         path,
       });
 
-      if (exists) {
+      if (exists && (!board || board.gitConfig.path !== path)) {
         setPendingData(data);
         setShowOverwriteAlert(true);
         return;
       }
 
-      // No existing file, proceed with save
+      // No existing file or same file as current board, proceed with save
       onSubmit(data);
     } catch (error) {
       console.error('Failed to check file existence:', error);
@@ -166,7 +189,7 @@ export function BoardDialog({ open, onOpenChange, onSubmit, board }: BoardDialog
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={!name || !selectedRepo}>
+              <Button type="submit" disabled={!name || !selectedRepo || isLoading}>
                 {board ? 'Save Changes' : 'Create Board'}
               </Button>
             </div>
