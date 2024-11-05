@@ -4,16 +4,5 @@
     "repo": "ontolify-kanban-react",
     "path": "kanban-config.json"
   },
-  "boards": [
-    {
-      "id": "8e3130c5-461e-4fc4-ae78-d6c419ea4031",
-      "name": "rereh",
-      "gitConfig": {
-        "owner": "michael-collins",
-        "repo": "3-json-save",
-        "path": "kanban-data1234124124124.json"
-      },
-      "lastModified": "2024-11-05T20:10:19.337Z"
-    }
-  ]
+  "boards": []
 }
