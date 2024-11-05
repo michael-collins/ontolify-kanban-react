@@ -1,9 +1,15 @@
 import { useState, useEffect } from 'react';
 import { KanbanBoard } from '@/components/KanbanBoard';
 import { Button } from '@/components/ui/button';
-import { Plus, Settings } from 'lucide-react';
+import { Plus, Settings, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { BoardDialog } from '@/components/BoardDialog';
 import { AppConfigDialog } from '@/components/AppConfigDialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import { saveToGitHub, loadFromGitHub } from '@/lib/github';
 import { getAuthToken } from '@/lib/storage';
@@ -82,6 +88,7 @@ export function App() {
     };
     setConfig(updatedConfig);
     setShowBoardDialog(false);
+    setEditingBoard(null);
 
     const token = getAuthToken();
     if (token && updatedConfig.gitConfig) {
@@ -201,14 +208,35 @@ export function App() {
           </Button>
           <div className="space-y-2">
             {config.boards.map(board => (
-              <Button
-                key={board.id}
-                variant={selectedBoardId === board.id ? 'secondary' : 'ghost'}
-                className="w-full justify-start"
-                onClick={() => setSelectedBoardId(board.id)}
-              >
-                {board.name}
-              </Button>
+              <div key={board.id} className="flex items-center gap-2">
+                <Button
+                  variant={selectedBoardId === board.id ? 'secondary' : 'ghost'}
+                  className="flex-1 justify-start"
+                  onClick={() => setSelectedBoardId(board.id)}
+                >
+                  {board.name}
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handleEditBoard(board)}>
+                      <Pencil className="h-4 w-4 mr-2" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="text-red-600 focus:text-red-600"
+                      onClick={() => handleDeleteBoard(board.id)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             ))}
           </div>
         </div>
