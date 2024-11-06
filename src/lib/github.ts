@@ -47,7 +47,7 @@ export async function saveToGitHub(config: GitHubConfig, content: string): Promi
         path: config.path,
       });
       
-      if (!Array.isArray(data)) {
+      if ('sha' in data) {
         sha = data.sha;
       }
     } catch (error: any) {
@@ -58,7 +58,7 @@ export async function saveToGitHub(config: GitHubConfig, content: string): Promi
     }
 
     // Create or update the file
-    const response = await octokit.repos.createOrUpdateFileContents({
+    await octokit.repos.createOrUpdateFileContents({
       owner: config.owner,
       repo: config.repo,
       path: config.path,
@@ -67,9 +67,6 @@ export async function saveToGitHub(config: GitHubConfig, content: string): Promi
       sha,
     });
 
-    if (response.status !== 200 && response.status !== 201) {
-      throw new Error(`GitHub API returned status ${response.status}`);
-    }
   } catch (error: any) {
     console.error('Error saving to GitHub:', error);
     let errorMessage = 'Failed to save to GitHub';
@@ -107,11 +104,11 @@ export async function loadFromGitHub(config: GitHubConfig): Promise<string> {
       path: config.path,
     });
 
-    if (Array.isArray(data)) {
-      throw new Error('Expected file content but got directory listing');
+    if ('type' in data && data.type === 'file' && 'content' in data) {
+      return decodeBase64(data.content);
     }
 
-    return decodeBase64(data.content);
+    throw new Error('Expected file content but got directory listing');
   } catch (error: any) {
     console.error('Error loading from GitHub:', error);
     let errorMessage = 'Failed to load from GitHub';

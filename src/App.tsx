@@ -22,7 +22,6 @@ function App() {
   const [showBoardDialog, setShowBoardDialog] = useState(false);
   const [showConfigDialog, setShowConfigDialog] = useState(false);
   const [editingBoard, setEditingBoard] = useState<Board | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -66,7 +65,6 @@ function App() {
       return;
     }
 
-    setIsSaving(true);
     try {
       await saveToGitHub({
         token,
@@ -84,9 +82,7 @@ function App() {
         description: error.message,
         variant: 'destructive',
       });
-      throw error; // Re-throw to handle in calling functions
-    } finally {
-      setIsSaving(false);
+      throw error;
     }
   };
 
@@ -103,6 +99,9 @@ function App() {
           lastModified: new Date().toISOString(),
         };
         updatedBoards[index] = newBoard;
+      } else {
+        // Handle the case where the board isn't found
+        return;
       }
     } else {
       newBoard = {
@@ -178,7 +177,6 @@ function App() {
             }}
             onEditBoard={handleEditBoard}
             onDeleteBoard={handleDeleteBoard}
-            onConfigureApp={() => setShowConfigDialog(true)}
           />
         </div>
         <div className="flex-1 overflow-auto">
