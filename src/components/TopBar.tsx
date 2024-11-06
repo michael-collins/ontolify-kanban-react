@@ -5,7 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
+import { IconButton } from './buttons/IconButton';
 
 interface TopBarProps {
   onConfigureApp: () => void;
@@ -21,9 +21,7 @@ export function TopBar({ onConfigureApp }: TopBarProps) {
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-9 w-9">
-                <Settings className="h-5 w-5" />
-              </Button>
+              <IconButton icon={<Settings className="h-5 w-5" />} />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={onConfigureApp}>

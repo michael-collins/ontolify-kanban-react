@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import { ActionButton } from './buttons/ActionButton';
 import { Input } from '@/components/ui/input';
 import {
   Dialog,
@@ -7,7 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogDescription,
 } from '@/components/ui/dialog';
 import {
   Select,
@@ -18,7 +17,6 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { GitHubLogoIcon } from '@radix-ui/react-icons';
-import { Loader2 } from 'lucide-react';
 import { saveToGitHub, loadFromGitHub, listUserRepos, type GitHubConfig } from '@/lib/github';
 import { saveAuthToken, getAuthToken, clearAuthToken } from '@/lib/storage';
 import { useToast } from '@/hooks/use-toast';
@@ -98,7 +96,7 @@ export function GitHubSync({ tasks, onLoadTasks }: GitHubSyncProps) {
         title: 'Saved Successfully',
         description: `Tasks saved to ${owner}/${repo}/${path}`,
       });
-      setIsOpen(false); // Close dialog after successful save
+      setIsOpen(false);
     } catch (error: any) {
       toast({
         title: 'Save Failed',
@@ -147,22 +145,19 @@ export function GitHubSync({ tasks, onLoadTasks }: GitHubSyncProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          <GitHubLogoIcon className="h-4 w-4" />
+        <ActionButton
+          variant="outline"
+          size="sm"
+          icon={<GitHubLogoIcon className="h-4 w-4" />}
+        >
           {isAuthenticated ? 'Sync Tasks' : 'Connect GitHub'}
-        </Button>
+        </ActionButton>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
             {isAuthenticated ? 'GitHub Synchronization' : 'Connect to GitHub'}
           </DialogTitle>
-          {!isAuthenticated && (
-            <DialogDescription>
-              Enter a GitHub personal access token to connect your account.
-              The token needs 'repo' scope to access your repositories.
-            </DialogDescription>
-          )}
         </DialogHeader>
         <div className="space-y-4 mt-4">
           {!isAuthenticated ? (
@@ -176,16 +171,13 @@ export function GitHubSync({ tasks, onLoadTasks }: GitHubSyncProps) {
                   onChange={(e) => setToken(e.target.value)}
                   placeholder="ghp_..."
                 />
-                <Button
+                <ActionButton
                   onClick={() => handleConnect()}
-                  disabled={!token || isLoading}
+                  disabled={!token}
+                  isLoading={isLoading}
                 >
-                  {isLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    'Connect'
-                  )}
-                </Button>
+                  Connect
+                </ActionButton>
               </div>
               <p className="text-sm text-muted-foreground">
                 Need a token?{' '}
@@ -234,31 +226,28 @@ export function GitHubSync({ tasks, onLoadTasks }: GitHubSyncProps) {
               </div>
 
               <div className="flex justify-between items-center">
-                <Button
+                <ActionButton
                   variant="ghost"
                   onClick={handleLogout}
                   className="text-red-500 hover:text-red-600"
                 >
                   Disconnect
-                </Button>
+                </ActionButton>
                 <div className="flex gap-2">
-                  <Button
+                  <ActionButton
                     variant="outline"
                     onClick={handleLoad}
                     disabled={!selectedRepo || isLoading}
                   >
                     Load
-                  </Button>
-                  <Button
+                  </ActionButton>
+                  <ActionButton
                     onClick={handleSave}
-                    disabled={!selectedRepo || isLoading}
+                    disabled={!selectedRepo}
+                    isLoading={isLoading}
                   >
-                    {isLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      'Save'
-                    )}
-                  </Button>
+                    Save
+                  </ActionButton>
                 </div>
               </div>
             </>

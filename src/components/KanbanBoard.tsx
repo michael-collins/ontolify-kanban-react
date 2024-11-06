@@ -20,8 +20,8 @@ import {
 import { KanbanColumn } from './KanbanColumn';
 import { TaskCard } from './TaskCard';
 import { AddColumnDialog } from './AddColumnDialog';
-import { Button } from './ui/button';
-import { Plus, Save, Loader2 } from 'lucide-react';
+import { ActionButton } from './buttons/ActionButton';
+import { Plus, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveToGitHub, loadFromGitHub } from '@/lib/github';
 import { getAuthToken } from '@/lib/storage';
@@ -58,6 +58,7 @@ export function KanbanBoard({ board }: KanbanBoardProps) {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
+  // Initialize sensors for drag and drop
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -345,7 +346,7 @@ export function KanbanBoard({ board }: KanbanBoardProps) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="flex items-center gap-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           <span>Loading board...</span>
         </div>
       </div>
@@ -372,29 +373,23 @@ export function KanbanBoard({ board }: KanbanBoardProps) {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold">{board.name}</h1>
           <div className="flex items-center gap-2">
-            <Button
+            <ActionButton
               variant="outline"
               size="sm"
-              className="gap-2"
+              icon={<Plus className="h-4 w-4" />}
               onClick={() => setShowAddColumn(true)}
             >
-              <Plus className="h-4 w-4" />
               Add Column
-            </Button>
-            <Button
+            </ActionButton>
+            <ActionButton
               variant="default"
               size="sm"
-              className="gap-2"
+              icon={<Save className="h-4 w-4" />}
               onClick={handleSave}
-              disabled={isSaving}
+              isLoading={isSaving}
             >
-              {isSaving ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Save className="h-4 w-4" />
-              )}
               Save Changes
-            </Button>
+            </ActionButton>
           </div>
         </div>
         <div className="flex flex-col md:flex-row flex-wrap gap-4">

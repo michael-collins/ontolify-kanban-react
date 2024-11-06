@@ -3,7 +3,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { CalendarDays, GripVertical, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { IconButton } from './buttons/IconButton';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -64,13 +64,10 @@ export function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
         <div className="absolute top-4 right-4 flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <MoreVertical className="h-4 w-4" />
-              </Button>
+              <IconButton
+                icon={<MoreVertical className="h-4 w-4" />}
+                className="opacity-0 group-hover:opacity-100 transition-opacity"
+              />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setShowEditDialog(true)}>

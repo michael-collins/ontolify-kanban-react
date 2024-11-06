@@ -5,10 +5,10 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, MoreVertical, Pencil, Plus, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { TaskCard } from './TaskCard';
 import { AddTaskDialog } from './AddTaskDialog';
 import { EditColumnDialog } from './EditColumnDialog';
+import { IconButton } from './buttons/IconButton';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -87,23 +87,17 @@ export function KanbanColumn({
               <h2 className="font-semibold">{column.title}</h2>
             </div>
             <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-secondary hover:text-black"
+              <IconButton
+                icon={<Plus className="h-4 w-4" />}
+                className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-secondary hover:text-black"
                 onClick={() => setShowAddDialog(true)}
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
+              />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-secondary"
-                  >
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
+                  <IconButton
+                    icon={<MoreVertical className="h-4 w-4" />}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-secondary"
+                  />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => setShowEditDialog(true)}>
