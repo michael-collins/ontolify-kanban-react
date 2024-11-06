@@ -17,7 +17,6 @@ interface BoardListProps {
   onAddBoard: () => void;
   onEditBoard: (board: Board) => void;
   onDeleteBoard: (boardId: string) => void;
-  onConfigureApp: () => void;
 }
 
 export function BoardList({
@@ -73,7 +72,7 @@ export function BoardList({
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    size="sm"
+                    size="icon"
                     className={cn(
                       'h-8 w-8 shrink-0',
                       selectedBoardId === board.id
