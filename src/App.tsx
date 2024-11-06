@@ -163,7 +163,7 @@ function App() {
   const selectedBoard = config.boards.find(b => b.id === selectedBoardId);
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="flex flex-col w-screen h-screen bg-background">
       <TopBar onConfigureApp={() => setShowConfigDialog(true)} />
       <div className="flex flex-1 overflow-hidden">
         <div className="w-64 border-r">
