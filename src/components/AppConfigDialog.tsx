@@ -194,6 +194,18 @@ export function AppConfigDialog({ open, onOpenChange, config, onSubmit }: AppCon
                     Connect
                   </Button>
                 </div>
+                <p className="text-sm text-muted-foreground">
+                  Need a token?{' '}
+                  <a
+                    href="https://github.com/settings/tokens/new?scopes=repo&description=Ontolify%20Kanban%20Board"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    Create one here
+                  </a>
+                  {' '}(requires 'repo' scope)
+                </p>
               </div>
             ) : (
               <>
