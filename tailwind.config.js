@@ -56,6 +56,14 @@ export default {
           5: 'hsl(var(--chart-5))',
         },
       },
+      variants: {
+        extend: {
+          ringWidth: ['focus'],
+          ringColor: ['focus'], 
+          ringOffsetWidth: ['focus'],
+          ringOffsetColor: ['focus'],
+        },
+      },
       keyframes: {
         'accordion-down': {
           from: {
