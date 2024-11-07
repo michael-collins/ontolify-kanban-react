@@ -21,11 +21,11 @@ export function TopBar({ onConfigureApp }: TopBarProps) {
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <IconButton icon={<Settings className="h-5 w-5" />} />
+              <IconButton icon={<Settings className="w-8 h-8" />} />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={onConfigureApp}>
-                <Github className="mr-2 h-4 w-4" />
+                <Github className="mr-2" />
                 Configure GitHub
               </DropdownMenuItem>
             </DropdownMenuContent>
