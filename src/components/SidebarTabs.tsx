@@ -58,7 +58,7 @@ export function SidebarTabs({
               'data-[state=active]:border-primary'
             )}
           >
-            Library
+            Tags
           </TabsTrigger>
         </TabsList>
         <div className="flex-1 overflow-hidden">

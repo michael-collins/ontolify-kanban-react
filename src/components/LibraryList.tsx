@@ -52,7 +52,7 @@ export function LibraryList({
           onClick={onAddLibrary}
         >
           <Plus className="h-4 w-4" />
-          Add Library
+          Add Tags
         </Button>
       </div>
       <ScrollArea className="flex-1">
