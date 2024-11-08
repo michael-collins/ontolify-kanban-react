@@ -14,6 +14,7 @@ interface BoardDialogProps {
 
 export function BoardDialog({ open, onOpenChange, onSubmit, board }: BoardDialogProps) {
   const [name, setName] = useState(board?.name || '');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -22,13 +23,21 @@ export function BoardDialog({ open, onOpenChange, onSubmit, board }: BoardDialog
       } else {
         setName('');
       }
+      setIsSubmitting(false);
     }
   }, [open, board]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const data: Partial<Board> = { name };
-    onSubmit(data);
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      const data: Partial<Board> = { name };
+      await onSubmit(data);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -46,15 +55,24 @@ export function BoardDialog({ open, onOpenChange, onSubmit, board }: BoardDialog
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter board name"
               required
+              disabled={isSubmitting}
             />
           </div>
 
           <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={!name}>
-              {board ? 'Save Changes' : 'Create Board'}
+            <Button 
+              type="submit" 
+              disabled={!name || isSubmitting}
+            >
+              {isSubmitting ? 'Creating...' : board ? 'Save Changes' : 'Create Board'}
             </Button>
           </div>
         </form>
