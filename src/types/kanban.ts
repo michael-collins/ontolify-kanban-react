@@ -7,6 +7,7 @@ export interface Task {
   status: Status;
   priority: 'low' | 'medium' | 'high';
   dueDate?: string;
+  hyperTags: TaskHyperTag[];
 }
 
 export interface Column {

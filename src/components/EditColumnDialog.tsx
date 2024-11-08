@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,30 +6,37 @@ import { Label } from '@/components/ui/label';
 import type { Column } from '@/types/kanban';
 
 interface EditColumnDialogProps {
-  column: Column;
+  column: Column | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (title: string) => void;
 }
 
 export function EditColumnDialog({ column, open, onOpenChange, onSubmit }: EditColumnDialogProps) {
-  const [title, setTitle] = useState(column.title);
+  const [title, setTitle] = useState('');
 
   // Reset form when dialog opens with current column data
-  const handleOpenChange = (open: boolean) => {
-    if (open) {
+  useEffect(() => {
+    if (open && column) {
       setTitle(column.title);
+    } else {
+      setTitle('');
     }
-    onOpenChange(open);
-  };
+  }, [open, column]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(title);
+    onOpenChange(false);
   };
 
+  // Don't render the dialog if there's no column to edit
+  if (!column) {
+    return null;
+  }
+
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit Column</DialogTitle>

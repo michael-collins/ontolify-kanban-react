@@ -5,6 +5,8 @@ export interface GitHubConfig {
   owner: string;
   repo: string;
   path: string;
+  sha?: string;
+  message?: string;
 }
 
 // Browser-compatible base64 encoding/decoding
@@ -62,13 +64,33 @@ export async function saveToGitHub(config: GitHubConfig, content: string): Promi
       owner: config.owner,
       repo: config.repo,
       path: config.path,
-      message: 'Update kanban board data',
+      message: config.message || 'Update kanban board data',
       content: encodeBase64(content),
-      sha,
+      sha: config.sha || sha,
     });
 
   } catch (error: any) {
-    console.error('Error saving to GitHub:', error);
+    if (error.status === 409) {
+      // Handle conflict by retrying with latest SHA
+      const { data } = await octokit.repos.getContent({
+        owner: config.owner,
+        repo: config.repo,
+        path: config.path,
+      });
+
+      if ('sha' in data) {
+        await octokit.repos.createOrUpdateFileContents({
+          owner: config.owner,
+          repo: config.repo,
+          path: config.path,
+          message: config.message || 'Update kanban board data',
+          content: encodeBase64(content),
+          sha: data.sha,
+        });
+        return;
+      }
+    }
+
     let errorMessage = 'Failed to save to GitHub';
     
     if (error.response?.data?.message) {
@@ -110,7 +132,6 @@ export async function loadFromGitHub(config: GitHubConfig): Promise<string> {
 
     throw new Error('Expected file content but got directory listing');
   } catch (error: any) {
-    console.error('Error loading from GitHub:', error);
     let errorMessage = 'Failed to load from GitHub';
 
     if (error.response?.status === 404) {
@@ -137,7 +158,6 @@ export async function listUserRepos(token: string): Promise<Array<{ owner: strin
       name: repo.name,
     }));
   } catch (error: any) {
-    console.error('Error listing repositories:', error);
     let errorMessage = 'Failed to list repositories';
 
     if (error.response?.status === 401) {

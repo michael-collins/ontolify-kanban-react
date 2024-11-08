@@ -14,4 +14,5 @@ export interface Board {
 export interface AppConfig {
   gitConfig: GitConfig | null;
   boards: Board[];
+  libraries: LibraryFile[];
 }

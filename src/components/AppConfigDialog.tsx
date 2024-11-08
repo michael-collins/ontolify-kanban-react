@@ -97,6 +97,10 @@ export function AppConfigDialog({ open, onOpenChange, config, onSubmit }: AppCon
       }
 
       const loadedConfig = JSON.parse(content) as AppConfig;
+      
+      // Preserve the selected repo in the loaded config
+      loadedConfig.gitConfig = { owner, repo, path };
+      
       onSubmit(loadedConfig);
       toast({
         title: 'Configuration Loaded',

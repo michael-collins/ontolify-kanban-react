@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { CalendarDays, GripVertical, MoreVertical, Pencil, Trash2 } from 'lucide-react';
@@ -11,14 +12,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { EditTaskDialog } from './EditTaskDialog';
+import { HyperTagDisplay } from './HyperTagDisplay';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
 import type { Task } from '@/types/kanban';
+import type { LibraryFile } from '@/types/library';
 
 interface TaskCardProps {
   task: Task;
   onEdit: (taskId: string, updates: Partial<Task>) => void;
   onDelete: (taskId: string) => void;
+  libraries?: LibraryFile[];
 }
 
 const priorityColors = {
@@ -27,7 +30,7 @@ const priorityColors = {
   high: 'bg-red-100 text-red-800',
 };
 
-export function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
+export function TaskCard({ task, onEdit, onDelete, libraries = [] }: TaskCardProps) {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const {
     attributes,
@@ -94,7 +97,7 @@ export function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
         <div className="space-y-3 pr-16">
           <h3 className="font-medium text-sm">{task.title}</h3>
           <p className="text-sm text-muted-foreground">{task.description}</p>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary" className={priorityColors[task.priority]}>
               {task.priority}
             </Badge>
@@ -105,6 +108,16 @@ export function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
               </div>
             )}
           </div>
+          {task.hyperTags && task.hyperTags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {task.hyperTags.map((tag, index) => (
+                <HyperTagDisplay 
+                  key={index} 
+                  tag={tag} 
+                />
+              ))}
+            </div>
+          )}
         </div>
       </Card>
       <EditTaskDialog
@@ -112,6 +125,7 @@ export function TaskCard({ task, onEdit, onDelete }: TaskCardProps) {
         open={showEditDialog}
         onOpenChange={setShowEditDialog}
         onSubmit={handleEdit}
+        libraries={libraries}
       />
     </>
   );

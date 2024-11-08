@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   SortableContext,
   verticalListSortingStrategy,
@@ -16,8 +17,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
 import type { Column, Task } from '@/types/kanban';
+import type { LibraryFile } from '@/types/library';
 
 interface KanbanColumnProps {
   column: Column;
@@ -28,6 +29,7 @@ interface KanbanColumnProps {
   onEditColumn: (columnId: string, title: string) => void;
   onDeleteColumn: (columnId: string) => void;
   isDragging?: boolean;
+  libraries?: LibraryFile[];
 }
 
 export function KanbanColumn({
@@ -39,6 +41,7 @@ export function KanbanColumn({
   onEditColumn,
   onDeleteColumn,
   isDragging = false,
+  libraries = [],
 }: KanbanColumnProps) {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -126,6 +129,7 @@ export function KanbanColumn({
                   task={task}
                   onEdit={onEditTask}
                   onDelete={onDeleteTask}
+                  libraries={libraries}
                 />
               ))}
             </SortableContext>
@@ -136,6 +140,7 @@ export function KanbanColumn({
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
         onSubmit={handleAddTask}
+        libraries={libraries}
       />
       <EditColumnDialog
         column={column}
